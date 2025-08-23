@@ -7,6 +7,7 @@ import { Cartesian3, Color, ArcGisMapServerImageryProvider } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import './MapWidget.css';
 import { useMemo, useEffect, useRef } from 'react';
+import { useTheme } from '../ThemeService'; // Import the useTheme hook
 
 // Helper function to determine bubble COLOR based on leak concentration
 const getPointColor = (concentration: number) => {
@@ -25,9 +26,11 @@ const getPointSize = (leakRate: number) => {
 };
 
 const MapWidget = () => {
+  const { theme } = useTheme(); // Get the current theme
+
   const queryProps = {
     dataSource: DM.DataSource,
-    dimensions: [DM.site.site_name, DM.site.lat, DM.site.lon], // Added site_name for tooltip title
+    dimensions: [DM.site.site_name, DM.site.lat, DM.site.lon],
     measures: [
       measureFactory.sum(DM.leak_source_isolation.leak_rate, 'Total leak_rate'),
       measureFactory.sum(
@@ -47,7 +50,7 @@ const MapWidget = () => {
   };
 
   const { data, isLoading, isError, error } = useExecuteQuery(queryProps);
-  const viewerRef = useRef(null);
+  const viewerRef = useRef<any>(null); // Use 'any' to avoid Cesium type conflicts
 
   const arcGisImageryProvider = useMemo(
     () =>
@@ -72,6 +75,9 @@ const MapWidget = () => {
     return <div>Error: {error.message}</div>;
   }
   if (data) {
+    // Determine text color based on the current theme
+    const textColor = theme === 'dark' ? 'white' : '#111827';
+
     return (
       <div className="map-widget-container">
         <Viewer
@@ -93,9 +99,9 @@ const MapWidget = () => {
             const pointColor = getPointColor(leakConcentration);
             const pixelSize = getPointSize(leakRate);
 
-            // Create the multi-line description for the tooltip
+            // Updated description with dynamic text color
             const description = `
-              <div style="font-family: sans-serif; color: white; padding: 8px; font-size: 16px; width: 320px;">
+              <div style="font-family: sans-serif; color: ${textColor}; padding: 8px; font-size: 16px; width: 320px;">
                 <table style="width: 100%; border-spacing: 0 8px;">
                   <tbody>
                     <tr>
@@ -148,3 +154,4 @@ const MapWidget = () => {
 };
 
 export default MapWidget;
+
