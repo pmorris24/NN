@@ -1,8 +1,0 @@
-/* public/cesium/Widgets/InfoBox/InfoBoxDescription.css */
-.cesium-infoBox-description {
-  font-family: sans-serif;
-  color: white;
-  background-color: rgba(50, 50, 50, 0.8);
-  padding: 10px;
-  border-radius: 5px;
-}
